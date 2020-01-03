@@ -1,0 +1,28 @@
+const M = 3
+const N = 4
+
+set Controlables = {go[i:0..M][j:0..N]}
+set Alphabet = {Controlables,arrived[i:0..M][j:0..N]}
+
+Matriz = Elem[0][0],
+Elem[i:0..M][j:0..N] = (when (i<M) go[i+1][j] -> arrived[i+1][j] -> Elem[i+1][j] | 
+						when (i>0) go[i-1][j] -> arrived[i-1][j] -> Elem[i-1][j] | 
+						when (j<N) go[i][j+1] -> arrived[i][j+1] -> Elem[i][j+1] | 
+						when (j>0) go[i][j-1] -> arrived[i][j-1] -> Elem[i][j-1]).
+						
+Robot = ({Controlables} -> Robot).
+
+||Environment = (Matriz || Robot).
+
+fluent Arrived22 = <arrived[0][1],{go[i:0..M][j:0..N]}\{go[0][1]}> initially 0
+fluent Arrived63 = <arrived[3][3],{go[i:0..M][j:0..N]}\{go[3][3]}> initially 0
+
+controllerSpec ControlSpec = {
+		safety = {}
+        assumption = {}
+        liveness = {Arrived22,Arrived63}
+        controllable = {Controlables}
+}
+
+controller ||Controller = Environment~{ControlSpec}.
+minimal ||TestController = (Environment || Controller).
